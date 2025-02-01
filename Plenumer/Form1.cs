@@ -42,7 +42,7 @@ namespace Plenumer
 
                 parentList.Remove(item); // Uklanjanje stavke
 
-                NumberedItem.PopulateListBox(listBox1, items); // Osvežavanje liste
+                PopulateListBox(listBox1, items); // Osvežavanje liste
             }
         }
 
@@ -191,21 +191,29 @@ namespace Plenumer
             int sec = int.Parse(label5.Text);
             int min = int.Parse(label1.Text);
 
+            // Ako dođe do 0, završi diskusiju i resetuj timer
             if (sec == 0 && min == 0) 
             {
                 timer1.Enabled = false;
-                MessageBox.Show("Isteklo je vreme za diskusiju!");
                 label5.Text = "00";
                 label1.Text = "20";
-                button3.Enabled = false;
+                DialogResult dialogResult = MessageBox.Show("Vreme za diskusiju je isteklo. Nastaviti diskusiju za još 20 minuta?", "Nastavak diskusije?", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes) timer1.Enabled = true;
+                else if (dialogResult == DialogResult.No)
+                {
+                    button3.Enabled = false;
+                    if (listBox1.SelectedIndex != listBox1.Items.Count - 1) listBox1.SelectedIndex++;
+                }
                 return;
             }
+            // Ako sekundara dođe do 0, smanji minute
             else if(sec == 0)
             {
                 label5.Text = "59";
                 label1.Text = (min-1).ToString();
                 return;
             }
+            // Smanji sekundaru
             else
             {
                 label5.Text = (sec-1).ToString();
@@ -213,16 +221,19 @@ namespace Plenumer
             
         }
 
+        // Prekidanje diskusije pre isteka vremena
         private void button3_Click(object sender, EventArgs e)
         {
             timer1.Enabled = false;
-            MessageBox.Show("Diskusija je završena!");
             label5.Text = "00";
             label1.Text = "20";
             button3.Enabled = false;
-            return;
+            button12_Click(sender, e);
+            if (listBox1.SelectedIndex != listBox1.Items.Count - 1) listBox1.SelectedIndex++;
+            MessageBox.Show("Diskusija je završena!");
         }
-
+        
+        // Timer za izlaganje
         private void timer2_Tick(object sender, EventArgs e)
         {
             int sec = int.Parse(label6.Text);
@@ -237,30 +248,34 @@ namespace Plenumer
             label6.Text = (sec-1).ToString();
         }
 
+        // Pitanje
         private void button4_Click(object sender, EventArgs e)
         {
-            timer1.Enabled = false;
+            timer2.Enabled = false;
             label6.Text = "20";
             button12.Enabled = true;
             timer2.Enabled = true;
         }
 
+        // Nova reč
         private void button5_Click(object sender, EventArgs e)
         {
-            timer1.Enabled = false;
+            timer2.Enabled = false;
             label6.Text = "120";
             button12.Enabled = true;
             timer2.Enabled = true;
         }
 
+        // Replika
         private void button6_Click(object sender, EventArgs e)
         {
-            timer1.Enabled = false;
+            timer2.Enabled = false;
             label6.Text = "45";
             button12.Enabled = true;
             timer2.Enabled = true;
         }
 
+        // Kraj izlaganja
         private void button12_Click(object sender, EventArgs e)
         {
             timer2.Enabled = false;
@@ -268,6 +283,7 @@ namespace Plenumer
             label6.Text = "00";
         }
 
+        // Provera textboxa za unos tačke dnevnog reda
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             if(textBox1.Text.Length > 0) button1.Enabled = true;
